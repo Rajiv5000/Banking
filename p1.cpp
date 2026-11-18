@@ -2,8 +2,10 @@
 #include<fstream>
 #include<string>
 #include<cstdlib>
+#include<vector>
 using namespace std;
 
+vector<string>passbook;
 string *username;
 string *password;
 long long *number;
@@ -35,11 +37,13 @@ bool username_check(string s);
 bool number_check(long long s);
 void delete_acc();
 string upper_case(string);
+void passbook_write();
+void passbook_read();
 int main();
 void menu()
 {
     string n;
-    cout<<"Dashboard \n1.Deposit \n2.Withdraw \n3.View Balance \n4.Send money \n5.Settings \n6.Log Out \n7.Exit"<<endl;
+    cout<<"Dashboard \n1.Deposit \n2.Withdraw \n3.View Balance \n4.Send money \n5.Passbook \n6.Settings \n7.Log Out \n8.Exit"<<endl;
     // cout<<"Enter The Number"<<endl;
     cin>>n;
     if(n=="1")
@@ -51,10 +55,12 @@ void menu()
     else if(n=="4")
     send();
     else if(n=="5")
-    setting();
+    passbook_read();
     else if(n=="6")
-    logout();
+    setting();
     else if(n=="7")
+    logout();
+    else if(n=="8")
     {
         cout<<"Thank you for using Our ATM"<<endl;
         exit(0);
@@ -477,11 +483,34 @@ void load()
     key.close();
     num.close();
 }
+void passbook_write()
+{
+    ifstream in;
+    string st;
+    in.open(pass+"passbook.txt");
+    while(in.eof()==0)
+    {
+        getline(in,st);
+        cout<<st<<endl;
+    }
+}
+void passbook_read()
+{
+    string st;
+    ofstream out;
+    out.open(pass+"passbook.txt");
+    // while(0)
+    // {
+        
+    //     cout<<st<<endl;
+    // }
+}
 int main()
 {
     cout<<"Welcome to Simple Banking Services (SBS)"<<endl;
-    input();
-    into();
-    menu();
+    passbook_read();
+    // input();
+    // into();
+    // menu();
     return 0;
 }
