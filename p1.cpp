@@ -497,13 +497,16 @@ void passbook_write()
 void passbook_read()
 {
     string st;
-    ofstream out;
-    out.open(pass+"passbook.txt");
-    // while(0)
-    // {
-        
-    //     cout<<st<<endl;
-    // }
+    ifstream in;
+    in.open(pass+"passbook.txt");
+    int i=9;
+    while(getline(in,st))
+    {
+        passbook.push_back(st);
+    }
+    in.close();
+    for(int i=passbook.size()-1;0<=i;i--)
+    cout<<passbook.at(i)<<endl;
 }
 int main()
 {

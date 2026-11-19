@@ -1,0 +1,1 @@
+string pass="C:\\micro_banking\\";
