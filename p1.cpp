@@ -1,7 +1,10 @@
 #include<iostream>
+#include<iomanip>
+#include<sstream>
 #include<fstream>
 #include<string>
 #include<cstdlib>
+#include<ctime>
 #include<vector>
 using namespace std;
 
@@ -39,6 +42,14 @@ void delete_acc();
 string upper_case(string);
 void passbook_write();
 void passbook_read();
+string date();
+void passbook_add(string,string,string,string, double, double);
+string double_to_string(double value)
+{
+    ostringstream ss;
+    ss<<fixed<<setprecision(2)<<value;
+    return ss.str();
+}
 int main();
 void menu()
 {
@@ -483,20 +494,24 @@ void load()
     key.close();
     num.close();
 }
+void passbook_add(string mode,string type, string name, string number, double credit, double debit)
+{
+    cout<<fixed<<setprecision(2);
+    cout<<(date()+"        "+mode+"/"+type+"/"+name+"/"+number+"         "+double_to_string(credit)+"         "+double_to_string(debit)+"        "+double_to_string(amt));
+}
 void passbook_write()
 {
-    ifstream in;
+    ofstream out;
     string st;
-    in.open(pass+"passbook.txt");
-    while(in.eof()==0)
-    {
-        getline(in,st);
-        cout<<st<<endl;
-    }
+    out.open(pass+"passbook.txt");
+    for(int i=0;i<passbook.size();i++)
+    out<<passbook.at(i)+"\n";
+    out.close();
 }
 void passbook_read()
 {
     string st;
+    vector<string>passbook;
     ifstream in;
     in.open(pass+"passbook.txt");
     int i=9;
@@ -508,10 +523,17 @@ void passbook_read()
     for(int i=passbook.size()-1;0<=i;i--)
     cout<<passbook.at(i)<<endl;
 }
+string date()
+{
+    time_t t = std::time(nullptr); // get current time
+    tm* now = std::localtime(&t);  // convert to local time
+    return to_string(now->tm_mday) + '-'+ to_string(now->tm_mon + 1) + '-'+to_string((now->tm_year + 1900)%100);
+}
 int main()
 {
     cout<<"Welcome to Simple Banking Services (SBS)"<<endl;
-    passbook_read();
+    // passbook_read();
+    passbook_add("Send","Dr","rajiv","1235",0, 1000);
     // input();
     // into();
     // menu();
