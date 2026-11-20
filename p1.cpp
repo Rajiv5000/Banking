@@ -43,13 +43,9 @@ string upper_case(string);
 void passbook_write();
 void passbook_read();
 string date();
-void passbook_add(string,string,string,string, double, double);
-string double_to_string(double value)
-{
-    ostringstream ss;
-    ss<<fixed<<setprecision(2)<<value;
-    return ss.str();
-}
+void passbook_add(string, double, double);
+void passbook_add(string,string,string,long, double, double);
+string double_to_string(double);
 int main();
 void menu()
 {
@@ -66,7 +62,13 @@ void menu()
     else if(n=="4")
     send();
     else if(n=="5")
-    passbook_read();
+    {
+        cout<<" Date            Description        Credit     Debit         Balance"<<endl;
+        for(int i=passbook.size()-1;0<=i;i--)
+        cout<<passbook[i]<<endl;
+        passbook_read();
+        menu();
+    }
     else if(n=="6")
     setting();
     else if(n=="7")
@@ -74,6 +76,7 @@ void menu()
     else if(n=="8")
     {
         cout<<"Thank you for using Our ATM"<<endl;
+        passbook_write();
         exit(0);
     } 
     else
@@ -93,6 +96,7 @@ void deposit()
     ofstream out(pass+username[position]+".txt");
     out<<amt;
     out.close();
+    passbook_add("CASH DEP BY",a, 0);
     menu();
 }
 void withdraw()
@@ -112,6 +116,7 @@ void withdraw()
         ofstream out(pass+username[position]+".txt");
         out<<amt;
         out.close();
+        passbook_add("CASH WDL BY",0,a);
     }
     else
     cout<<"Insufficient Balance";
@@ -146,6 +151,7 @@ void send()
             ofstream out(pass+username[position]+".txt");    
             out<<amt;
             out.close();
+            passbook_add("UPI","DR",username[pos],number[pos],0,a);
             ifstream bal(pass+username[pos]+".txt");
             if(bal.is_open())
             {
@@ -364,6 +370,7 @@ void login()
 }
 void logout()
 {
+    passbook_write();
     output();
     main();
 }
@@ -494,16 +501,27 @@ void load()
     key.close();
     num.close();
 }
-void passbook_add(string mode,string type, string name, string number, double credit, double debit)
+void passbook_add(string mode, double credit,double debit)
 {
     cout<<fixed<<setprecision(2);
-    cout<<(date()+"        "+mode+"/"+type+"/"+name+"/"+number+"         "+double_to_string(credit)+"         "+double_to_string(debit)+"        "+double_to_string(amt));
+    if(debit==0)
+    passbook.push_back(date()+"        "+mode+"        "+double_to_string(credit)+"                    "+to_string(0)+"        "+double_to_string(amt));
+    else if(credit==0)
+    passbook.push_back(date()+"        "+mode+"        "+to_string(0)+"                    "+double_to_string(debit)+"        "+double_to_string(amt));
+}
+void passbook_add(string mode,string type, string name, long number, double credit, double debit)
+{
+    cout<<fixed<<setprecision(2);
+    if(debit==0)
+    passbook.push_back(date()+"        "+mode+"/"+type+"/"+(name)+"/"+to_string(number)+"         "+double_to_string(credit)+"         "+to_string(0)+"        "+double_to_string(amt));
+    else if(credit==0)
+    passbook.push_back(date()+"        "+mode+"/"+type+"/"+name+"/"+to_string(number)+"         "+to_string(0)+"         "+double_to_string(debit)+"        "+double_to_string(amt));
 }
 void passbook_write()
 {
     ofstream out;
     string st;
-    out.open(pass+"passbook.txt");
+    out.open(pass+"passbook.txt",ios::app);
     for(int i=0;i<passbook.size();i++)
     out<<passbook.at(i)+"\n";
     out.close();
@@ -521,7 +539,8 @@ void passbook_read()
     }
     in.close();
     for(int i=passbook.size()-1;0<=i;i--)
-    cout<<passbook.at(i)<<endl;
+    cout<< " " <<passbook.at(i)<<endl;
+    cout<<endl;
 }
 string date()
 {
@@ -529,13 +548,22 @@ string date()
     tm* now = std::localtime(&t);  // convert to local time
     return to_string(now->tm_mday) + '-'+ to_string(now->tm_mon + 1) + '-'+to_string((now->tm_year + 1900)%100);
 }
+string double_to_string(double value)
+{
+    ostringstream ss;
+    ss<<fixed<<setprecision(2)<<value;
+    return ss.str();
+}
 int main()
 {
     cout<<"Welcome to Simple Banking Services (SBS)"<<endl;
     // passbook_read();
-    passbook_add("Send","Dr","rajiv","1235",0, 1000);
-    // input();
-    // into();
-    // menu();
+    // for(int i=0;i<10;i++)
+    // passbook_add("Send","Dr","rajiv","1235",i+1, 1000);
+    // passbook_write();
+    // passbook_read();
+    input();
+    into();
+    menu();
     return 0;
 }
