@@ -6,7 +6,9 @@
 #include<cstdlib>
 #include<ctime>
 #include<vector>
+#include<filesystem>
 using namespace std;
+namespace fs=std::filesystem;
 
 vector<string>passbook;
 string *username;
@@ -553,6 +555,11 @@ string double_to_string(double value)
     ostringstream ss;
     ss<<fixed<<setprecision(2)<<value;
     return ss.str();
+}
+void folder_create(string folder_name)
+{
+    string pass="C:\\micro_banking\\";
+    fs::create_directory(pass+"\\new");
 }
 int main()
 {
