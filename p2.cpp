@@ -25,10 +25,20 @@ int main(){
 //     // }
 //     // in.close();
 string pass="C:\\micro_banking\\";
-fs::create_directory(pass+"\\new");
-       ofstream out;
-       out.open(pass+"\\text.txt");
-       out<<"hello world!";
-       out.close();
+// fs::create_directory(pass+"\\new\\plus");
+//        ofstream out;
+//        out.open(pass+"\\text.txt");
+//        out<<"hello world!";
+//        out.close();
+       string folderPath = pass+"\\new";
+
+       if (fs::exists(folderPath))// && fs::is_directory(folderPath)) 
+       {
+              cout << "Folder exists";
+       } 
+       else
+       {
+              cout << "Folder does not exist";
+       }
        return 0;
 }

@@ -556,6 +556,7 @@ string double_to_string(double value)
     ss<<fixed<<setprecision(2)<<value;
     return ss.str();
 }
+bool
 void folder_create(string folder_name)
 {
     string pass="C:\\micro_banking\\";
