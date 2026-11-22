@@ -48,6 +48,8 @@ string date();
 void passbook_add(string, double, double);
 void passbook_add(string,string,string,long, double, double);
 string double_to_string(double);
+void folder_check(string);
+void folder_create(string);
 int main();
 void menu()
 {
@@ -523,7 +525,8 @@ void passbook_write()
 {
     ofstream out;
     string st;
-    out.open(pass+"passbook.txt",ios::app);
+    folder_check(pass+to_string(number[position]));
+    out.open(pass+to_string(number[position])+"\\passbook.txt",ios::app);
     for(int i=0;i<passbook.size();i++)
     out<<passbook.at(i)+"\n";
     out.close();
@@ -533,7 +536,7 @@ void passbook_read()
     string st;
     vector<string>passbook;
     ifstream in;
-    in.open(pass+"passbook.txt");
+    in.open(pass+to_string(number[position])+"\\passbook.txt");
     int i=9;
     while(getline(in,st))
     {
@@ -556,11 +559,17 @@ string double_to_string(double value)
     ss<<fixed<<setprecision(2)<<value;
     return ss.str();
 }
-// bool
+void folder_check(string path)
+{
+    if (!(fs::exists(path) && fs::is_directory(path))) 
+    {   
+        folder_create(path);
+        cout<<(fs::exists(path) && fs::is_directory(path))<<endl;
+    }
+}
 void folder_create(string folder_name)
 {
-    string pass="C:\\micro_banking\\";
-    fs::create_directory(pass+"\\new");
+    fs::create_directory(folder_name);
 }
 int main()
 {

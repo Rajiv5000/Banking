@@ -31,8 +31,7 @@ string pass="C:\\micro_banking\\";
 //        out<<"hello world!";
 //        out.close();
        string folderPath = pass+"\\new";
-
-       if (fs::exists(folderPath))// && fs::is_directory(folderPath)) 
+       if (!fs::exists(folderPath) && fs::is_directory(folderPath)) 
        {
               cout << "Folder exists";
        } 
@@ -40,5 +39,6 @@ string pass="C:\\micro_banking\\";
        {
               cout << "Folder does not exist";
        }
+       cout<<(fs::exists(folderPath) && fs::is_directory(folderPath))<<endl;
        return 0;
 }
