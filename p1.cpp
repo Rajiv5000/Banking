@@ -46,16 +46,21 @@ void passbook_write();
 void passbook_read();
 string date();
 void passbook_add(string, double, double);
-void passbook_add(string,string,string,long, double, double);
+void passbook_add(string,string,string,long long, double, double);
+void passbook_other(string,string,string,long long, double, double, int, long long);
 string double_to_string(double);
 void folder_check(string);
 void folder_create(string);
+string to_lower(string);
+void user();
+void key();
+void num();
 int main();
 void menu()
 {
     string n;
     cout<<"Dashboard \n1.Deposit \n2.Withdraw \n3.View Balance \n4.Send money \n5.Passbook \n6.Settings \n7.Log Out \n8.Exit"<<endl;
-    // cout<<"Enter The Number"<<endl;
+    cout<<"Enter The number"<<endl;
     cin>>n;
     if(n=="1")
     deposit();
@@ -79,8 +84,9 @@ void menu()
     logout();
     else if(n=="8")
     {
-        cout<<"Thank you for using Our ATM"<<endl;
+        output();
         passbook_write();
+        cout<<"Thank you for using Our ATM"<<endl;
         exit(0);
     } 
     else
@@ -96,8 +102,8 @@ void deposit()
     cin>>a;
     amt+=a;
     cout<<"Amount is successfully deposited";
-    cout<<position<<endl;
-    ofstream out(pass+username[position]+".txt");
+    folder_check(pass+to_string(number[position]));
+    ofstream out(pass+to_string(number[position])+"\\"+username[position]+".txt");
     out<<amt;
     out.close();
     passbook_add("CASH DEP BY",a, 0);
@@ -117,7 +123,8 @@ void withdraw()
     {
         amt-=a;
         cout<<"Amount is successfully withdrawal"<<endl;
-        ofstream out(pass+username[position]+".txt");
+        folder_check(pass+to_string(number[position]));
+        ofstream out(pass+to_string(number[position])+"\\"+username[position]+".txt");
         out<<amt;
         out.close();
         passbook_add("CASH WDL BY",0,a);
@@ -146,25 +153,27 @@ void send()
         if(a<=0)
         {
             cout<<"Invalid amount"<<endl;
-            withdraw();
+            // withdraw();  //check
         }
         else if(0<=amt-a)
         {   
             amt-=a;
-            cout<<"Transaction Successful"<<endl;    
-            ofstream out(pass+username[position]+".txt");    
+            cout<<"Transaction Successful"<<endl;
+            ofstream out(pass+to_string(number[position])+"\\"+username[position]+".txt");    
             out<<amt;
             out.close();
             passbook_add("UPI","DR",username[pos],number[pos],0,a);
-            ifstream bal(pass+username[pos]+".txt");
+            folder_check(pass+to_string(number[pos]));
+            ifstream bal(pass+to_string(number[pos])+"\\"+username[pos]+".txt");
             if(bal.is_open())
             {
                 bal>>temp;
             }
             bal.close();
             temp+=a;
-            ofstream other(pass+username[pos]+".txt");
+            ofstream other(pass+to_string(number[pos])+"\\"+username[pos]+".txt");
             other<<temp;
+            passbook_other("UPI","CR",username[position],number[position],a,0, pos, number[pos]);
             other.close();
         }
         else
@@ -205,7 +214,7 @@ void setting()
     }
     else if(s=="4")
     {
-        change_password();
+        change_number();
     }
     else if(s=="5")
     {
@@ -218,6 +227,7 @@ void setting()
     else if(s=="8")
     {
         output();
+        passbook_write();
         cout<<"Thank you for using Our ATM";
         exit(0);
     }
@@ -232,7 +242,7 @@ void profile()
     cout<<"\nUsername :"<<username[position]<<endl;
     cout<<"password :"<<password[position]<<endl;
     cout<<"Mobile-Number :"<<number[position]<<endl;
-    menu();
+    setting();
 }
 void change_username()
 {
@@ -244,15 +254,26 @@ void change_username()
         cout<<"Username must start from alphabet"<<endl;
         change_username();
     }
-
-    if(username_check(s))
+    if(!username_check(s))
     {
         cout<<"username already exists"<<endl;
         change_username();
     }
     else
     {
+        string temp=username[position];
+        double a=0;
         username[position]=s;
+        user();
+        ifstream in(pass+to_string(number[position])+"\\"+temp+".txt");
+        in>>a;
+        in.close();
+        ofstream out(pass+to_string(number[position])+"\\"+s+".txt");
+        out<<a;
+        out.close();
+        remove((pass+to_string(number[position])+"\\"+temp+".txt").c_str());
+        setting();
+
     }
 
 }
@@ -262,11 +283,13 @@ void change_password()
     cout<<"Enter the new password"<<endl;
     cin>>s;
     password[position]=s;
+    key();
+    setting();
 }
 void change_number()
 {
     long long n;
-    cout<<"Enter the new "<<endl;
+    cout<<"Enter the new number"<<endl;
     cin>>n;
     if(number_check(n))
     {
@@ -276,6 +299,8 @@ void change_number()
     else
     {
         number[position]=n;
+        num();
+        setting();
     }
 }
 bool username_check(string s)
@@ -301,11 +326,14 @@ void delete_acc()
     string s;
     cout<<"Type the \"Confirm\" to proceed"<<endl;
     cin>>s;
+    s=to_lower(s);
+    // cout<<(s)<<" "<<s.length()<<endl;
     if(s=="confirm")
     {
         ofstream member(pass+"member.txt");
         member<<total-1;
         member.close();
+        folder_check(pass+to_string(number[position]));
         ofstream user(pass+"username.txt");   
         ofstream key(pass+"password.txt");    
         ofstream num(pass+"number.txt");       
@@ -320,14 +348,25 @@ void delete_acc()
         user.close();    
         key.close();
         num.close();
-        ifstream name(pass+username[position]+".txt");
+        ifstream name(pass+to_string(number[position])+"\\"+username[position]+".txt");// check it folder and file deletion
         if(name.is_open())
-        remove((pass + username[position] + ".txt").c_str());
+        // fs::remove_all((pass +to_string(number[position])).c_str());    check
         name.close();
         cout<<"Thank you for using Our ATM"<<endl;
         exit(0);
     }
-    menu();
+}
+string to_lower(string s)
+{
+    string sp="";
+    for(int i=0;i<s.length();i++)
+    {
+        if(isalpha(s[i])&&(int(s[i])<97))
+        sp+=(char(int(s[i])+32));
+        else
+        sp+=s[i];
+    }
+    return sp;
 }
 void login()
 {
@@ -365,7 +404,11 @@ void login()
     }
     else
     {
-        ifstream data(pass+username[position]+".txt");
+        folder_check(pass+to_string(number[position]));
+        user();
+        key();
+        num();
+        ifstream data(pass+to_string(number[position])+"\\"+username[position]+".txt");  //username[position] ----> balance
         if(data.is_open())
         data>>a;
         amt+=a;
@@ -440,7 +483,7 @@ void open_acc()
         user<<s<<endl;
         key<<p<<endl;
         num<<n<<endl;
-        member.close();
+        member.close();  //think to re-structure
         user.close();
         key.close();
         num.close();
@@ -476,6 +519,7 @@ void output()
     ofstream member(pass+"member.txt");
     member<<total;
     member.close();
+    folder_check(pass+to_string(number[position]));
     ofstream user(pass+"username.txt");
     ofstream key(pass+"password.txt");
     ofstream num(pass+"number.txt");
@@ -488,7 +532,6 @@ void output()
     user.close();
     key.close();
     num.close();
-    
 }
 void load()
 {
@@ -513,7 +556,7 @@ void passbook_add(string mode, double credit,double debit)
     else if(credit==0)
     passbook.push_back(date()+"        "+mode+"        "+to_string(0)+"                    "+double_to_string(debit)+"        "+double_to_string(amt));
 }
-void passbook_add(string mode,string type, string name, long number, double credit, double debit)
+void passbook_add(string mode,string type, string name, long long number, double credit, double debit)
 {
     cout<<fixed<<setprecision(2);
     if(debit==0)
@@ -528,7 +571,7 @@ void passbook_write()
     folder_check(pass+to_string(number[position]));
     out.open(pass+to_string(number[position])+"\\passbook.txt",ios::app);
     for(int i=0;i<passbook.size();i++)
-    out<<passbook.at(i)+"\n";
+    out<<passbook.at(i)<<endl;
     out.close();
 }
 void passbook_read()
@@ -544,8 +587,18 @@ void passbook_read()
     }
     in.close();
     for(int i=passbook.size()-1;0<=i;i--)
-    cout<< " " <<passbook.at(i)<<endl;
+    cout<<passbook.at(i)<<endl;
     cout<<endl;
+}
+void passbook_other(string mode,string type, string name, long long number, double credit, double debit, int position,long long sender_number)
+{
+    ofstream out;
+    string st;
+    folder_check(pass+to_string(sender_number));
+    out.open(pass+to_string(sender_number)+"\\passbook.txt",ios::app);
+    st=date()+"        "+mode+"/"+type+"/"+(name)+"/"+to_string(number)+"         "+double_to_string(credit)+"         "+to_string(0)+"        "+double_to_string(amt);
+    out<<st+"\n";
+    out.close();
 }
 string date()
 {
@@ -571,14 +624,24 @@ void folder_create(string folder_name)
 {
     fs::create_directory(folder_name);
 }
+void user(){
+    ofstream out(pass+to_string(number[position])+"\\"+"username.txt");
+    out<<username[position];
+    out.close();
+}
+void key(){
+    ofstream out(pass+to_string(number[position])+"\\"+"password.txt");
+    out<<password[position];
+    out.close();
+}
+void num(){
+    ofstream out(pass+to_string(number[position])+"\\"+"number.txt");
+    out<<number[position];
+    out.close();
+}
 int main()
 {
     cout<<"Welcome to Simple Banking Services (SBS)"<<endl;
-    // passbook_read();
-    // for(int i=0;i<10;i++)
-    // passbook_add("Send","Dr","rajiv","1235",i+1, 1000);
-    // passbook_write();
-    // passbook_read();
     input();
     into();
     menu();
