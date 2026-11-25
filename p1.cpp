@@ -58,51 +58,302 @@ void key();
 void num();
 int main();
 
-// class admin{    //work in progressssssssssssssssssssssssssssss
+class admin{    //work in progressssssssssssssssssssssssssssss
 
-//     private:
-//     vector<string> username;
-//     vector<long long> number;
-//     vector<string> password;
-//     vector<string> admin_username;
-//     vector<long long> admin_number;
-//     vector<string> admin_password;
-//     int size=0;
+    private:
+    int count=0;
+    int position;
+    vector<string> username;
+    vector<long long> number;
+    vector<string> password;
+    vector<string> admin_username;
+    vector<long long> admin_number;
+    vector<string> admin_password;
+    int size=0;
 
-//     void login();
-//     public:
-//     void load(string * user, int user_size, long long * num, int num_size, string * password, int password_size)
-//     {
-//         username.assign(user,user+sizeof(user_size));
-//         number.assign(num,num+sizeof(num_size));
-//         admin::password.assign(password,password+sizeof(password_size));
-//     }
-//     void load_admin(string * user, int user_size, long long * num, int num_size, string * password, int password_size)
-//     {
-    
-//     }
-//     void search_by_username(string user)
-//     {
-        
-//     }
-//     void load()
-//     {
-//         folder_check(pass+"\\admin");
-//         ifstream mem(pass+"\\admin\\member.txt");
-//         mem>>size;
-//         mem.close();
-//     }
-// };
-
-
-// void admin::login()
-// {
-//     folder_check(pass+"\\admin");
-//     ifstream mem(pass+"\\admin\\member.txt");
-//     mem>>size;
-//     mem.close();
-
-// }
+    void menu()
+    {
+        int in;
+        cout<<"1.Search \n2.Check passbook \n3.Delete Account"<<endl;
+        cout<<"Enter the number"<<endl;
+        cin>>in;
+        if(in==1)
+        {
+            int out=search();
+            if(out==-1)
+            cout<<"No Record is Found"<<endl;
+            else
+            view(out);
+            cout<<endl;
+            menu();
+        }
+        else if(in==2)
+        check_passbook();
+        else if(in==3)
+        delete_account();
+        else
+        {
+            cout<<"Invalid Number"<<endl;
+            cout<<endl;
+            menu();
+        }
+    }
+    int search()
+    {
+        string num;
+        int in;
+        cout<<"Enter the Username/Mobile Number for search"<<endl;
+        cin>>num;
+        if(isdigit(num[0]))
+        in=search_by_number(stoll(num));
+        else
+        in=search_by_username(num);
+        return in;
+    }
+    int search_by_number(long long num)
+    {
+        int i=0;
+        while(i<number.size())
+        {
+            if(num==number.at(i))
+            {
+                cout<<"Found details"<<endl;
+                return i;
+            }
+            i++;
+        }
+        return -1;
+    }
+    int search_by_username(string user)
+    {
+        int i=0;
+        while(i<username.size())
+        {
+            if(user==username.at(i))
+            {
+                cout<<"Found details"<<endl;
+                return i;
+            }
+            i++;
+        }
+        return -1;
+    }
+    void view(int i)
+    {
+        cout<<"Username : "<<username.at(i)<<endl;
+        cout<<"Number : "<<number.at(i)<<endl;
+        cout<<"Password : "<<password.at(i)<<endl;
+    }
+    void check_passbook()
+    {
+        string num;
+        cout<<"Enter the Username/Mobile Number for search"<<endl;
+        cin>>num;
+        if(isdigit(num[0]))
+        passbook_by_number(stoll(num));
+        else
+        passbook_by_username(num);
+        cout<<endl;
+        menu();
+    }
+    void passbook_by_number(long long num)
+    {
+        int in=search_by_number(num);
+        if(in==-1)
+        cout<<"Invalid Number"<<endl;
+        else
+        {
+            if(folder_check(pass,in))
+            passbook_read(in);
+            else
+            cout<<"No Passbook Is Generated"<<endl;
+        }
+    }
+    void passbook_by_username(string user)
+    {
+        int in=search_by_username(user);
+        if(in==-1)
+        cout<<"Invalid Number"<<endl;
+        else
+        {
+            if(folder_check(pass,in))
+            passbook_read(in);
+            else
+            cout<<"No Passbook Is Generated"<<endl;
+        }
+    }
+    void passbook_read(int position)
+    {
+        string st;
+        vector<string>passbook;
+        ifstream in;
+        in.open(pass+to_string(number[position])+"\\passbook.txt");
+        while(getline(in,st))
+        {
+            passbook.push_back(st);
+        }
+        in.close();
+        cout<<" Date            Description        Credit     Debit         Balance"<<endl;
+        for(int i=passbook.size()-1;0<=i;i--)
+        cout<<passbook.at(i)<<endl;
+        cout<<endl;
+    }
+    bool folder_check(string pass, int i)
+    {
+        if (!(fs::exists(pass) && fs::is_directory(pass)))
+        return false;
+        if (!(fs::exists(pass+to_string(number[position])) && fs::is_directory(pass+to_string(number[position]))))
+        return false;
+        if (!(fs::exists(pass+to_string(number[position])+"\\passbook.txt") && fs::is_directory(pass+to_string(number[position])+"\\passbook.txt")))
+        return false;
+        return true;
+    }
+    void delete_account()
+    {
+        int in;
+        cout<<"\n 1. Delete Sepecific Account \n2. Delete All Account"<<endl;
+        cin>>in;
+        if(in==1)
+        {
+            int out=search();
+            string s;
+            cout<<"Type the \"Confirm\" to proceed"<<endl;
+            cin>>s;
+            s=to_lower(s);
+            if(s=="confirm")
+            delete_acc(out);
+        }
+    }
+    void delete_all_account()
+    {
+        string s;
+        cout<<"Type the \"Confirm\" to proceed"<<endl;
+        cin>>s;
+        s=to_lower(s);
+        if(s=="confirm")
+        {
+            for(int i=0;i<username.size();i++)
+            delete_acc(i);
+        }
+    }
+    void delete_acc(int position)
+    {
+        string s;
+        // cout<<"Type the \"Confirm\" to proceed"<<endl;
+        cin>>s;
+        s=to_lower(s);
+        if(s=="confirm")
+        {
+            ofstream member(pass+"member.txt");
+            member<<total-1;
+            member.close();
+            ::folder_check(pass+to_string(number[position]));
+            ofstream user(pass+"username.txt");   
+            ofstream key(pass+"password.txt");    
+            ofstream num(pass+"number.txt");       
+            for(int i=0;i<total;i++)
+            {
+                if(i==position)
+                continue;
+                user<<username[i]<<endl;      
+                key<<password[i]<<endl;       
+                num<<number[i]<<endl;     
+            }
+            user.close();    
+            key.close();
+            num.close();
+            ifstream name(pass+to_string(number[position])+"\\"+username[position]+".txt");// check it folder and file deletion
+            if(name.is_open())
+            {
+                name.close();
+                fs::remove_all((pass +to_string(number[position])).c_str());   // check
+            }
+            end("Thank you for using Our ATM");
+    }
+}
+    void login()
+    {
+        bool test1=false,test2=false;
+        string in;
+        if(count==3)
+        {
+            cout<<"You have Entered Incorrect Id/Username or Password more than three time"<<endl;
+            cout<<"Thank you for using our ATM"<<endl;
+            exit(0);
+        }
+        cout<<"Enter the Username/Mobile Number"<<endl;
+        cin>>in;
+        for(int i=0;i<size;i++)
+        {
+            if(in==admin_username[i]||(isdigit(in[0])&&(stoll(in)==admin_number[i])))
+            {
+                position=i;
+                test1=true;
+                break;
+            }
+        }
+        cout<<"Enter the password"<<endl;
+        cin>>in;
+        if(in==admin_password[position])
+        {
+            test2=true;
+        }
+        if(!(test1&&test2))
+        {
+            cout<<"You have Entered Incorrect Id/Username or Password"<<endl;
+            count++;
+            login();
+        }
+    }
+    public:
+    void load(string * user, long long * num, string * password, int size)
+    {
+        username.assign(user,user+sizeof(size));
+        number.assign(num,num+sizeof(size));
+        admin::password.assign(password,password+sizeof(size));
+        load();
+        login();
+    }
+    void load()
+    {
+        ::folder_check(pass+"\\admin");
+        ifstream mem(pass+"\\admin\\member.txt");
+        if(mem.is_open())
+        mem>>size;
+        mem.close();
+        ifstream in(pass+"\\admin\\username.txt");
+        upload(in,size, admin_username);
+        in.close();
+        in.open(pass+"\\admin\\password.txt");
+        upload(in,size, admin_password);
+        in.close();
+        in.open(pass+"\\admin\\number.txt");
+        upload(in,size, admin_number);
+        in.close();
+    }
+    void upload(ifstream& in,int size, vector<string> &temp)
+    {
+        string s;
+        while(0<size)
+        {
+            in>>s;
+            temp.push_back(s);
+            --size;
+        }
+        in.close();
+    }
+    void upload(ifstream& in,int size, vector<long long> &temp)
+    {
+        long long s;
+        while(0<size)
+        {
+            in>>s;
+            temp.push_back(s);
+            --size;
+        }
+        in.close();
+    }
+};
 
 void menu()
 {
@@ -637,7 +888,6 @@ void passbook_read()
     vector<string>passbook;
     ifstream in;
     in.open(pass+to_string(number[position])+"\\passbook.txt");
-    int i=9;
     while(getline(in,st))
     {
         passbook.push_back(st);
@@ -694,8 +944,25 @@ void num(){
 int main()
 {
     cout<<"Welcome to Simple Banking Services (SBS)"<<endl;
+    here : cout<<"1. Admin/Staff \n2. Customer"<<endl;
+    int in;
+    cin>>in;
     input();
-    into();
-    menu();
-    return 0;
+    if(in==1)
+    {
+        admin start;
+        start.load(username, number, password, total);
+    }
+    else if(in==2)
+    {
+        into();
+        menu();
+        return 0;
+    }
+    else
+    {
+        cout<<"Invalid Input"<<endl;
+        cout<<endl;
+        goto here;
+    }
 }
