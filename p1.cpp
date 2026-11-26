@@ -24,6 +24,7 @@ string pass="C:\\micro_banking\\";
 void deposit();
 void withdraw();
 void view();
+double view(string, int);
 void send();
 int search(long long);
 void setting();
@@ -35,7 +36,7 @@ void output();
 void load();
 void profile();
 void open_acc();
-void end(string);
+void end_program(string);
 void change_username();
 void change_password();
 void change_number();
@@ -48,7 +49,7 @@ void passbook_read();
 string date();
 void passbook_add(string, double, double);
 void passbook_add(string,string,string,long long, double, double);
-void passbook_other(string,string,string,long long, double, double, int, long long);
+void passbook_other(string,string,string,long long, double, double, int, long long, double);
 string double_to_string(double);
 void folder_check(string);
 void folder_create(string);
@@ -259,16 +260,13 @@ class admin{    //work in progressssssssssssssssssssssssssssss
                 key<<password[i]<<endl;       
                 num<<number[i]<<endl;     
             }
-            user.close();    
-            key.close();
-            num.close();
             ifstream name(pass+to_string(number[position])+"\\"+username[position]+".txt");// check it folder and file deletion
             if(name.is_open())
             {
                 name.close();
                 fs::remove_all((pass +to_string(number[position])).c_str());   // check
             }
-            end("Thank you for using Our ATM");
+            cout<<"Done"<<endl;
     }
 }
     void login()
@@ -382,7 +380,7 @@ void menu()
     else if(n=="7")
     logout();
     else if(n=="8")
-    end("Thank you for using Our ATM"); 
+    end_program("Thank you for using Our ATM"); 
     else
     {
         cout<<"Invalid Number"<<endl;
@@ -397,6 +395,7 @@ void deposit()
     cin>>a;
     amt+=a;
     cout<<"Amount is successfully deposited"<<endl;
+    cout<<"Balance : "<<amt<<endl;
     cout<<endl;
     folder_check(pass+to_string(number[position]));
     ofstream out(pass+to_string(number[position])+"\\"+username[position]+".txt");
@@ -476,14 +475,14 @@ void send()
             temp+=a;
             ofstream other(pass+to_string(number[pos])+"\\"+username[pos]+".txt");
             other<<temp;
-            passbook_other("UPI","CR",username[position],number[position],a,0, pos, number[pos]);
+            passbook_other("UPI","CR",username[position],number[position],a,0, pos, number[pos],pos);
             other.close();
         }
         else
         {
             cout<<"Insufficient Balance";
-            menu();
         }
+        menu();
     }
     else
     {
@@ -529,7 +528,7 @@ void setting()
     else if(s=="7")
     delete_acc();
     else if(s=="8")
-    end("Thank you for using Our ATM");
+    end_program("Thank you for using Our ATM");
     else
     {
         cout<<"Invalid Number"<<endl;
@@ -654,7 +653,7 @@ void delete_acc()
             name.close();
             fs::remove_all((pass +to_string(number[position])).c_str());   // check
         }
-        end("Thank you for using Our ATM");
+        end_program("Thank you for using Our ATM");
     }
 }
 string to_lower(string s)
@@ -723,7 +722,7 @@ void logout()
     passbook_write();
     main();
 }
-void end(string s)
+void end_program(string s)
 {
     output();
     passbook_write();
@@ -897,15 +896,22 @@ void passbook_read()
     cout<<passbook.at(i)<<endl;
     cout<<endl;
 }
-void passbook_other(string mode,string type, string name, long long number, double credit, double debit, int position,long long sender_number)
+void passbook_other(string mode,string type, string name, long long number, double credit, double debit, int position,long long sender_number, int pos)
 {
     ofstream out;
     string st;
     folder_check(pass+to_string(sender_number));
     out.open(pass+to_string(sender_number)+"\\passbook.txt",ios::app);
-    st=date()+"        "+mode+"/"+type+"/"+(name)+"/"+to_string(number)+"         "+double_to_string(credit)+"         "+to_string(0)+"        "+double_to_string(amt);
+    st=date()+"        "+mode+"/"+type+"/"+(name)+"/"+to_string(number)+"         "+double_to_string(credit)+"         "+to_string(0)+"        "+double_to_string(view(to_string(number),pos));
     out<<st+"\n";
     out.close();
+}
+double view(string number, int pos)
+{
+    double amt=0;
+    ifstream in(pass+number+"\\"+username[pos]+".txt");
+    in>>amt;
+    return amt;
 }
 string date()
 {
